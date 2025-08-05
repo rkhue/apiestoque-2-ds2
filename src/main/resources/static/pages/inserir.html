@@ -1,0 +1,83 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Inserir Produto</title>
+    <link rel="stylesheet" href="../styles/inserir.css">
+</head>
+<body>
+    <div class="big-title">
+        <h1>Novo produto!</h1>
+    </div>
+    <div class="form-container">
+        <div id="message-container" class="message-container"></div>
+        
+        <form id="inserir-form">
+            <div class="inputs">
+                <label for="nome">Nome:</label>
+                <input type="text" name="nome" id="nome" required>
+                <label for="descricao">Descrição:</label>
+                <input type="text" name="descricao" id="descricao" required>
+                <label for="preco">Preço:</label>
+                <input type="number" name="preco" id="preco" required step="0.01">
+                <label for="quantidadeEstoque">Quantidade em Estoque:</label>
+                <input type="number" name="quantidadeEstoque" id="quantidadeEstoque" required>
+            </div>
+            <button type="submit" class="submit-button">Inserir</button>
+        </form>
+    </div>
+
+    <script>
+        const form = document.getElementById('inserir-form');
+        const messageContainer = document.getElementById('message-container');
+
+        form.addEventListener('submit', (e) => {
+            e.preventDefault();
+
+            const jsonData = {
+                nome: document.getElementById('nome').value,
+                descricao: document.getElementById('descricao').value,
+                preco: parseFloat(document.getElementById('preco').value),
+                quantidadeEstoque: parseInt(document.getElementById('quantidadeEstoque').value)
+            };
+
+            fetch('http://localhost:8080/api/produtos/inserir', {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json'
+                },
+                body: JSON.stringify(jsonData)
+            })
+            .then(response => {
+                if (!response.ok) {
+                    throw new Error('Erro ao inserir produto');
+                }
+                return response.text();
+            })
+            .then(product => {
+                showMessage(`Produto inserido com sucesso no id ${product.id}`, 'success');
+                form.reset(); // Reset form after successful submission
+            })
+            .catch(error => {
+                showMessage(error.message, 'error');
+            });
+        });
+        
+        // Helper function to show messages
+        function showMessage(text, type) {
+            messageContainer.textContent = text;
+            messageContainer.className = 'message-container';
+            messageContainer.classList.add(type);
+            messageContainer.style.display = 'block';
+            
+            // Auto hide success messages after 5 seconds
+            if (type === 'success') {
+                setTimeout(() => {
+                    messageContainer.style.display = 'none';
+                }, 5000);
+            }
+        }
+    </script>
+</body>
+</html>

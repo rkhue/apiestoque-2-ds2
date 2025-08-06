@@ -42,6 +42,7 @@ public class ProdutoService {
         produtoRepository.delete(produtoModel);
     }
 
+    @Transactional
     public void atualizarProduto(Integer id, ProdutoModel produto) {
         ProdutoModel p = this.getById(id);
         BeanUtils.copyProperties(produto, p);
@@ -49,8 +50,20 @@ public class ProdutoService {
         produtoRepository.save(p);
     }
 
+    @Transactional
     public void alterarProduto(Integer id, Map<String, Object> produto) {
         ProdutoModel p = this.getById(id);
+
+        if (produto.isEmpty()) {
+            throw new IllegalArgumentException("Nenhum campo foi informado na atualização");
+        }
+
+        if (produto.containsKey("nome")) {
+            if (produto.get("nome").toString().isEmpty()) {
+                throw new IllegalArgumentException("O nome do produto deve ser informado");
+            }
+        }
+
         produto.forEach((chave, valor) -> {
             try {
                 Field field = ProdutoModel.class.getDeclaredField(chave);

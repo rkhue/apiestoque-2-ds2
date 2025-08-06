@@ -30,6 +30,7 @@ public class ProdutoModel {
     @DecimalMin(value = "0.01", message = "O preço do produto deve ser maior que zero")
     private Double preco;
 
+    @NotNull(message = "O nome do produto deve ser informado e não nulo")
     @PositiveOrZero(message = "A quantidade de estoque deve ser maior ou igual a zero")
     @Column(name = "quantidadeestoque")
     private Integer quantidadeEstoque;

@@ -67,4 +67,11 @@ public class GlobalExceptionHandler {
 
         return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(errors);
     }
+
+    @ExceptionHandler(InvalidDataException.class)
+    public ResponseEntity<Map<String, String>> handleInvalidDataException(InvalidDataException ex) {
+        Map<String, String> errors = ex.getErrors();
+
+        return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(errors);
+    }
 }

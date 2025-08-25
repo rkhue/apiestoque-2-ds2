@@ -3,6 +3,7 @@ package com.example.apiestoque2.service;
 import com.example.apiestoque2.exception.InsufficientStockException;
 import com.example.apiestoque2.model.ProdutoModel;
 import com.example.apiestoque2.repository.ProdutoRepository;
+import com.example.apiestoque2.validation.ProdutoValidation;
 import jakarta.persistence.EntityNotFoundException;
 import jakarta.transaction.Transactional;
 import org.springframework.beans.BeanUtils;
@@ -17,9 +18,11 @@ import java.util.Map;
 public class ProdutoService {
 
     private final ProdutoRepository produtoRepository;
+    private final ProdutoValidation produtoValidation;
 
-    public ProdutoService(ProdutoRepository produtoRepository) {
+    public ProdutoService(ProdutoRepository produtoRepository, ProdutoValidation produtoValidation) {
         this.produtoRepository = produtoRepository;
+        this.produtoValidation = produtoValidation;
     }
 
     public List<ProdutoModel> listarProdutos() {
@@ -58,11 +61,7 @@ public class ProdutoService {
             throw new IllegalArgumentException("Nenhum campo foi informado na atualização");
         }
 
-        if (produto.containsKey("nome")) {
-            if (produto.get("nome").toString().isEmpty()) {
-                throw new IllegalArgumentException("O nome do produto deve ser informado");
-            }
-        }
+        produtoValidation.validate(produto);
 
         produto.forEach((chave, valor) -> {
             try {

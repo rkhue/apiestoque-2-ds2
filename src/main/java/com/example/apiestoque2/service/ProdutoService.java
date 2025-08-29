@@ -3,26 +3,21 @@ package com.example.apiestoque2.service;
 import com.example.apiestoque2.exception.InsufficientStockException;
 import com.example.apiestoque2.model.ProdutoModel;
 import com.example.apiestoque2.repository.ProdutoRepository;
-import com.example.apiestoque2.validation.ProdutoValidation;
 import jakarta.persistence.EntityNotFoundException;
 import jakarta.transaction.Transactional;
 import org.springframework.beans.BeanUtils;
 import org.springframework.stereotype.Service;
 
-import java.lang.reflect.Field;
 import java.util.List;
-import java.util.Map;
 
 
 @Service
 public class ProdutoService {
 
     private final ProdutoRepository produtoRepository;
-    private final ProdutoValidation produtoValidation;
 
-    public ProdutoService(ProdutoRepository produtoRepository, ProdutoValidation produtoValidation) {
+    public ProdutoService(ProdutoRepository produtoRepository) {
         this.produtoRepository = produtoRepository;
-        this.produtoValidation = produtoValidation;
     }
 
     public List<ProdutoModel> listarProdutos() {
@@ -54,25 +49,39 @@ public class ProdutoService {
     }
 
     @Transactional
-    public void alterarProduto(Integer id, Map<String, Object> produto) {
+    public void alterarProduto(Integer id, ProdutoModel produtoModel) {
         ProdutoModel p = this.getById(id);
-
-        if (produto.isEmpty()) {
-            throw new IllegalArgumentException("Nenhum campo foi informado na atualização");
+//
+//        if (produto.isEmpty()) {
+//            throw new IllegalArgumentException("Nenhum campo foi informado na atualização");
+//        }
+//
+//        produtoValidation.validate(produto);
+//
+//        produto.forEach((chave, valor) -> {
+//            try {
+//                Field field = ProdutoModel.class.getDeclaredField(chave);
+//                field.setAccessible(true);
+//                field.set(p, valor);
+//            } catch (NoSuchFieldException | IllegalAccessException e) {
+//                throw new RuntimeException(e);
+//            }
+//        });
+//
+//        produtoRepository.save(p);
+        if (produtoModel.getNome() != null) {
+            p.setNome(produtoModel.getNome());
         }
-
-        produtoValidation.validate(produto);
-
-        produto.forEach((chave, valor) -> {
-            try {
-                Field field = ProdutoModel.class.getDeclaredField(chave);
-                field.setAccessible(true);
-                field.set(p, valor);
-            } catch (NoSuchFieldException | IllegalAccessException e) {
-                throw new RuntimeException(e);
-            }
-        });
-
+        if (produtoModel.getPreco() != null) {
+            p.setPreco(produtoModel.getPreco());
+        }
+        if (produtoModel.getQuantidadeEstoque() != null) {
+            p.setQuantidadeEstoque(produtoModel.getQuantidadeEstoque());
+        }
+        if (produtoModel.getDescricao() != null) {
+            p.setDescricao(produtoModel.getDescricao());
+        }
+//        BeanUtils.copyProperties(produtoModel, p);
         produtoRepository.save(p);
     }
 

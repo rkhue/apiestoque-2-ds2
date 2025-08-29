@@ -17,7 +17,7 @@ public class ProdutoValidation {
         Map<String, String> errors = new HashMap<>();
 
         if (produto.containsKey("nome")) {
-            if (produto.get("nome") == null || produto.get("nome").toString().isEmpty()) {
+            if (produto.get("nome") == null || produto.get("nome").toString().trim().isEmpty()) {
                 errors.put("nome", "O nome do produto não pode ser vazio");
             }
         }
@@ -71,9 +71,10 @@ public class ProdutoValidation {
                 }
             }
 
-            if (!errors.isEmpty()) {
-                throw new InvalidDataException(errors);
-            }
+        }
+
+        if (!errors.isEmpty()) {
+            throw new InvalidDataException(errors);
         }
     }
 }

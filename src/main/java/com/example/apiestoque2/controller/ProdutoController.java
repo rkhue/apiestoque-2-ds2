@@ -1,12 +1,15 @@
 package com.example.apiestoque2.controller;
+
 import com.example.apiestoque2.model.ProdutoModel;
 import com.example.apiestoque2.service.ProdutoService;
-import jakarta.validation.Valid;
+import com.example.apiestoque2.validation.OnCreate;
+import com.example.apiestoque2.validation.OnPatch;
+import jakarta.validation.groups.Default;
 import org.springframework.http.ResponseEntity;
+import org.springframework.validation.annotation.Validated;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
-import java.util.Map;
 
 @RestController
 @RequestMapping("/api/produtos")
@@ -32,7 +35,7 @@ public class ProdutoController {
 
 
     @PostMapping("/inserir")
-    public ResponseEntity<Object> inserirProduto(@Valid @RequestBody ProdutoModel produto) {
+    public ResponseEntity<Object> inserirProduto(@RequestBody @Validated({OnCreate.class, Default.class}) ProdutoModel produto) {
         // include validations manually via ifs by now (at least)
         if (produto.getPreco() <= 0) {
             return ResponseEntity.badRequest().body("O preço do produto deve ser maior que zero");
@@ -52,7 +55,7 @@ public class ProdutoController {
 
     @PutMapping("/atualizar/{id}")
     public ResponseEntity<String> atualizarProduto(@PathVariable Integer id,
-                                                   @Valid @RequestBody ProdutoModel produto) {
+                                                   @Validated({OnPatch.class, Default.class}) @RequestBody ProdutoModel produto) {
         produtoService.atualizarProduto(id, produto);
         return ResponseEntity.ok("Produto atualizado com sucesso!");
 
@@ -60,7 +63,7 @@ public class ProdutoController {
 
     @PatchMapping("/alterar/{id}")
     public ResponseEntity<String> alterarProduto(@PathVariable Integer id,
-                                                 @RequestBody Map<String, Object> produto) {
+                                                 @Validated({OnPatch.class, Default.class}) ProdutoModel produto) {
         produtoService.alterarProduto(id, produto);
         return ResponseEntity.ok("Produto parcialmente atualizado com sucesso!");
     }

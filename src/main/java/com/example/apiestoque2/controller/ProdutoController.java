@@ -1,6 +1,7 @@
 package com.example.apiestoque2.controller;
 
-import com.example.apiestoque2.model.ProdutoModel;
+import com.example.apiestoque2.dto.produto.ProdutoRequestDTO;
+import com.example.apiestoque2.dto.produto.ProdutoResponseDTO;
 import com.example.apiestoque2.service.ProdutoService;
 import com.example.apiestoque2.validation.OnCreate;
 import com.example.apiestoque2.validation.OnPatch;
@@ -22,27 +23,22 @@ public class ProdutoController {
     }
 
     @GetMapping("/{id}")
-    public ResponseEntity<ProdutoModel> getById(@PathVariable Integer id) {
-        ProdutoModel produtoModel = produtoService.getById(id);
+    public ResponseEntity<ProdutoResponseDTO> getById(@PathVariable Integer id) {
+        ProdutoResponseDTO produtoModel = produtoService.getByIdResponse(id);
         return ResponseEntity.ok(produtoModel);
     }
 
 
     @GetMapping("/selecionar")
-    public ResponseEntity<List<ProdutoModel>> listarProdutos() {
-        return ResponseEntity.ok(produtoService.listarProdutos());
+    public ResponseEntity<List<ProdutoResponseDTO>> listarProdutos() {
+        return ResponseEntity.ok(produtoService.listarProdutosResponse());
     }
 
 
     @PostMapping("/inserir")
-    public ResponseEntity<Object> inserirProduto(@RequestBody @Validated({OnCreate.class, Default.class}) ProdutoModel produto) {
+    public ResponseEntity<ProdutoResponseDTO> inserirProduto(@RequestBody @Validated({OnCreate.class, Default.class}) ProdutoRequestDTO produto) {
         // include validations manually via ifs by now (at least)
-        if (produto.getPreco() <= 0) {
-            return ResponseEntity.badRequest().body("O preço do produto deve ser maior que zero");
-        } else if (produto.getQuantidadeEstoque() < 0) {
-            return ResponseEntity.badRequest().body("A quantidade de estoque deve ser maior ou igual a zero");
-        }
-        ProdutoModel p = produtoService.salvarProduto(produto);
+        ProdutoResponseDTO p = produtoService.salvarProduto(produto);
 
         return ResponseEntity.ok(p);
     }
@@ -55,7 +51,7 @@ public class ProdutoController {
 
     @PutMapping("/atualizar/{id}")
     public ResponseEntity<String> atualizarProduto(@PathVariable Integer id,
-                                                   @Validated({OnPatch.class, Default.class}) @RequestBody ProdutoModel produto) {
+                                                   @Validated({OnCreate.class, Default.class}) @RequestBody ProdutoRequestDTO produto) {
         produtoService.atualizarProduto(id, produto);
         return ResponseEntity.ok("Produto atualizado com sucesso!");
 
@@ -63,7 +59,7 @@ public class ProdutoController {
 
     @PatchMapping("/alterar/{id}")
     public ResponseEntity<String> alterarProduto(@PathVariable Integer id,
-                                                 @Validated({OnPatch.class, Default.class}) ProdutoModel produto) {
+                                                 @Validated({OnPatch.class, Default.class}) ProdutoRequestDTO produto) {
         produtoService.alterarProduto(id, produto);
         return ResponseEntity.ok("Produto parcialmente atualizado com sucesso!");
     }

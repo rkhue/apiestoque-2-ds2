@@ -1,5 +1,7 @@
 package com.example.apiestoque2.service;
 
+import com.example.apiestoque2.dto.produto.ProdutoRequestDTO;
+import com.example.apiestoque2.dto.produto.ProdutoResponseDTO;
 import com.example.apiestoque2.exception.InsufficientStockException;
 import com.example.apiestoque2.model.ProdutoModel;
 import com.example.apiestoque2.repository.ProdutoRepository;
@@ -20,8 +22,17 @@ public class ProdutoService {
         this.produtoRepository = produtoRepository;
     }
 
-    public List<ProdutoModel> listarProdutos() {
-        return produtoRepository.findAll();
+
+    public ProdutoModel fromRequest(ProdutoRequestDTO produtoRequestDTO) {
+        ProdutoModel produtoModel = new ProdutoModel();
+        BeanUtils.copyProperties(produtoRequestDTO, produtoModel);
+        return produtoModel;
+    }
+
+    public ProdutoResponseDTO toResponse(ProdutoModel produtoModel) {
+        ProdutoResponseDTO produtoResponseDTO = new ProdutoResponseDTO();
+        BeanUtils.copyProperties(produtoModel, produtoResponseDTO);
+        return produtoResponseDTO;
     }
 
     public ProdutoModel getById(Integer id) {
@@ -29,9 +40,24 @@ public class ProdutoService {
                 .orElseThrow(() -> new EntityNotFoundException("Produto não encontrado"));
     }
 
+    public List<ProdutoModel> listarProdutos() {
+        return produtoRepository.findAll();
+    }
+
+    public List<ProdutoResponseDTO> listarProdutosResponse() {
+        return produtoRepository.findAll().stream()
+                .map(this::toResponse)
+                .toList();
+    }
+
+    public ProdutoResponseDTO getByIdResponse(Integer id) {
+        return toResponse(getById(id));
+    }
+
     @Transactional
-    public ProdutoModel salvarProduto(ProdutoModel produto) {
-        return produtoRepository.save(produto);
+    public ProdutoResponseDTO salvarProduto(ProdutoRequestDTO produto) {
+        ProdutoModel produtoModel = fromRequest(produto);
+        return toResponse(produtoRepository.save(produtoModel));
     }
 
     @Transactional
@@ -41,45 +67,28 @@ public class ProdutoService {
     }
 
     @Transactional
-    public void atualizarProduto(Integer id, ProdutoModel produto) {
+    public void atualizarProduto(Integer id, ProdutoRequestDTO produtoRequestDTO) {
         ProdutoModel p = this.getById(id);
-        BeanUtils.copyProperties(produto, p);
+        BeanUtils.copyProperties(produtoRequestDTO, p);
 
         produtoRepository.save(p);
     }
 
     @Transactional
-    public void alterarProduto(Integer id, ProdutoModel produtoModel) {
+    public void alterarProduto(Integer id, ProdutoRequestDTO produtoRequestDTO) {
         ProdutoModel p = this.getById(id);
-//
-//        if (produto.isEmpty()) {
-//            throw new IllegalArgumentException("Nenhum campo foi informado na atualização");
-//        }
-//
-//        produtoValidation.validate(produto);
-//
-//        produto.forEach((chave, valor) -> {
-//            try {
-//                Field field = ProdutoModel.class.getDeclaredField(chave);
-//                field.setAccessible(true);
-//                field.set(p, valor);
-//            } catch (NoSuchFieldException | IllegalAccessException e) {
-//                throw new RuntimeException(e);
-//            }
-//        });
-//
-//        produtoRepository.save(p);
-        if (produtoModel.getNome() != null) {
-            p.setNome(produtoModel.getNome());
+
+        if (produtoRequestDTO.getNome() != null) {
+            p.setNome(produtoRequestDTO.getNome());
         }
-        if (produtoModel.getPreco() != null) {
-            p.setPreco(produtoModel.getPreco());
+        if (produtoRequestDTO.getPreco() != null) {
+            p.setPreco(produtoRequestDTO.getPreco());
         }
-        if (produtoModel.getQuantidadeEstoque() != null) {
-            p.setQuantidadeEstoque(produtoModel.getQuantidadeEstoque());
+        if (produtoRequestDTO.getQuantidadeEstoque() != null) {
+            p.setQuantidadeEstoque(produtoRequestDTO.getQuantidadeEstoque());
         }
-        if (produtoModel.getDescricao() != null) {
-            p.setDescricao(produtoModel.getDescricao());
+        if (produtoRequestDTO.getDescricao() != null) {
+            p.setDescricao(produtoRequestDTO.getDescricao());
         }
 //        BeanUtils.copyProperties(produtoModel, p);
         produtoRepository.save(p);

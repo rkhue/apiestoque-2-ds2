@@ -1,0 +1,21 @@
+meta {
+  name: delete_produto
+  type: http
+  seq: 8
+}
+
+delete {
+  url: http://localhost:8080/api/produtos/excluir/8
+  body: none
+  auth: inherit
+}
+
+body:json {
+  {
+    "preco": 162.5
+  }
+}
+
+settings {
+  encodeUrl: true
+}

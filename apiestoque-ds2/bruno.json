@@ -1,0 +1,9 @@
+{
+  "version": "1",
+  "name": "apiestoque-ds2",
+  "type": "collection",
+  "ignore": [
+    "node_modules",
+    ".git"
+  ]
+}

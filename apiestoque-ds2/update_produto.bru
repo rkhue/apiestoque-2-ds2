@@ -1,0 +1,21 @@
+meta {
+  name: update_produto
+  type: http
+  seq: 7
+}
+
+patch {
+  url: http://localhost:8080/api/produtos/alterar/8
+  body: json
+  auth: inherit
+}
+
+body:json {
+  {
+    "preco": 162.5
+  }
+}
+
+settings {
+  encodeUrl: true
+}

@@ -1,0 +1,21 @@
+meta {
+  name: atualiza_produto_parcial
+  type: http
+  seq: 1
+}
+
+patch {
+  url: http://localhost:8080/api/produtos/alterar/7
+  body: json
+  auth: inherit
+}
+
+body:json {
+  {
+    "nome": "Camiseta azul"
+  }
+}
+
+settings {
+  encodeUrl: true
+}

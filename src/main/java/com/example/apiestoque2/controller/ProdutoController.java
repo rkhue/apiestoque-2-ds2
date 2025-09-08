@@ -59,7 +59,7 @@ public class ProdutoController {
 
     @PatchMapping("/alterar/{id}")
     public ResponseEntity<String> alterarProduto(@PathVariable Integer id,
-                                                 @Validated({OnPatch.class, Default.class}) ProdutoRequestDTO produto) {
+                                                 @Validated({OnPatch.class, Default.class}) @RequestBody ProdutoRequestDTO produto) {
         produtoService.alterarProduto(id, produto);
         return ResponseEntity.ok("Produto parcialmente atualizado com sucesso!");
     }

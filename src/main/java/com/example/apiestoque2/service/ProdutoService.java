@@ -5,6 +5,7 @@ import com.example.apiestoque2.dto.produto.ProdutoResponseDTO;
 import com.example.apiestoque2.exception.InsufficientStockException;
 import com.example.apiestoque2.model.ProdutoModel;
 import com.example.apiestoque2.repository.ProdutoRepository;
+import com.fasterxml.jackson.databind.ObjectMapper;
 import jakarta.persistence.EntityNotFoundException;
 import jakarta.transaction.Transactional;
 import org.springframework.beans.BeanUtils;
@@ -17,23 +18,25 @@ import java.util.List;
 public class ProdutoService {
 
     private final ProdutoRepository produtoRepository;
+    private final ObjectMapper objectMapper;
 
-    public ProdutoService(ProdutoRepository produtoRepository) {
+    public ProdutoService(ProdutoRepository produtoRepository, ObjectMapper objectMapper) {
         this.produtoRepository = produtoRepository;
+        this.objectMapper = objectMapper;
     }
 
 
-    public ProdutoModel fromRequest(ProdutoRequestDTO produtoRequestDTO) {
-        ProdutoModel produtoModel = new ProdutoModel();
-        BeanUtils.copyProperties(produtoRequestDTO, produtoModel);
-        return produtoModel;
-    }
-
-    public ProdutoResponseDTO toResponse(ProdutoModel produtoModel) {
-        ProdutoResponseDTO produtoResponseDTO = new ProdutoResponseDTO();
-        BeanUtils.copyProperties(produtoModel, produtoResponseDTO);
-        return produtoResponseDTO;
-    }
+//    public ProdutoModel fromRequest(ProdutoRequestDTO produtoRequestDTO) {
+//        ProdutoModel produtoModel = new ProdutoModel();
+//        BeanUtils.copyProperties(produtoRequestDTO, produtoModel);
+//        return produtoModel;
+//    }
+//
+//    public ProdutoResponseDTO toResponse(ProdutoModel produtoModel) {
+//        ProdutoResponseDTO produtoResponseDTO = new ProdutoResponseDTO();
+//        BeanUtils.copyProperties(produtoModel, produtoResponseDTO);
+//        return produtoResponseDTO;
+//    }
 
     public ProdutoModel getById(Integer id) {
         return produtoRepository.findById(id)
@@ -46,18 +49,18 @@ public class ProdutoService {
 
     public List<ProdutoResponseDTO> listarProdutosResponse() {
         return produtoRepository.findAll().stream()
-                .map(this::toResponse)
+                .map(p -> objectMapper.convertValue(p, ProdutoResponseDTO.class))
                 .toList();
     }
 
     public ProdutoResponseDTO getByIdResponse(Integer id) {
-        return toResponse(getById(id));
+        return objectMapper.convertValue(getById(id), ProdutoResponseDTO.class);
     }
 
     @Transactional
-    public ProdutoResponseDTO salvarProduto(ProdutoRequestDTO produto) {
-        ProdutoModel produtoModel = fromRequest(produto);
-        return toResponse(produtoRepository.save(produtoModel));
+    public ProdutoResponseDTO salvarProduto(ProdutoRequestDTO produtoRequest) {
+        ProdutoModel produtoModel = objectMapper.convertValue(produtoRequest, ProdutoModel.class);
+        return objectMapper.convertValue(produtoRepository.save(produtoModel), ProdutoResponseDTO.class);
     }
 
     @Transactional
